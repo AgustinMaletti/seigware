@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<style>
+.my_card {
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow:2px -3px 5px 0px #7D84C6;
+}
+.like-button {
+    width: 100px;
+}
+
+
+</style>
+ <div class="container-fluid">
+    <div class="row">
+        <div class="col"  >
+            <h1>Make a post Seigware!</h1>
+                <form id="form-post" class="form-post my_form">
+                    <div class="form-group">
+                        <label class="label" for="author">Author Name</label>
+                        <input id="author-post" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="title">Title</label>
+                        <input id="title-post" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="content">Content</label>
+                        <textarea id="text-post" row="100" cols="33" class="form-control"></textarea>        
+                    </div>
+                    <button id="button-send" class="btn btn-primary" style="margin-bottom:1em;">Send Post</button>
+                </form>
+                <div id='error-alert' style='display:none;text-align:center;'></div>
+            <div id='succes-alert' style='display:none;'></div>
+        </div>
+       <div class="col">
+        <ul id='post-list'></ul>
+       </div>
+    </div>
+</div>    
+<script>
+// when the document is ready send request for getting data and render it
+$(document).ready(function(){
+    $.ajax({dataType:'json',
+            method:'GET',
+            url:'/get_posts'
+    }).done(function(data){
+        for (var i = 0; i < data.length; i++){
+            $('#post-list').prepend(`<div id="post-slot-${data[i].post_id}" class="card my_card">
+                                         <div class="card-body">
+                                            <h3 class="card-title">${data[i].author}</h3>
+                                            <h4 class="card-title">${data[i].title}</h4>
+                                            <p class="card-text">${data[i].text}</p>
+                                         <div>
+                                            <label id="label-${data[i].post_id}" for="like-${data[i].post_id}" style="margin-right:3em; width:3em;">${data[i].likes}</label>
+                                            <button id="like-${data[i].post_id}" class="btn btn-primary float-right like-button">Like</button>
+                                         </div>
+                                         </div>
+                                     </div>`);
+        }
+    //console.log(typeof(data));
+    //console.log(data);
+    //chain to like button the like function
+    }).done(function(){
+       $('.like-button').click(Like_click);
+    })
+        
+    $('#button-send').click(POST_post);
+    
+})
+    
+        
+
+
+function Like_click(event){
+    event.preventDefault();
+    var post_id = this.id.split('-')[1];
+    // take the value add one and update the dom
+    var likes = parseInt($('#label-' + post_id).text());
+    likes += 1;
+    $('#label-' + post_id).text(`${likes}`);
+    var like_data = {post_id: post_id, total_likes: likes}
+    //  send to server and aupdate in database
+    $.ajax({
+            data: JSON.stringify(like_data), 
+            type:'POST',        
+            url:'/like_post',
+            contentType:'application/json;charset=UTF-8',
+    }).done(function(data){
+        console.log(data)
+    })
+    //$('#label-'+post_id).text
+    //console.log(post_id);
+}
+function POST_post(event){   
+    event.preventDefault();   
+    //console.log($SCRIPT_ROOT)
+    // clear the data fields, save the data to the database and retrive the post id
+    // create the renderization object and put it in the dom
+    // the like button have the post id, when click it modify the label with +1 and save the new value with ajax to database
+    console.log($('#author-post').val());
+    console.log($('#title-post').val());
+    console.log($('#text-post').val()); 
+    if ($('#author-post').val() != '' && $('#title-post').val() != '' && $('#text-post').val() != ''){
+       
+        // Save data
+        var post_data = {author: $('#author-post').val(),
+                         title: $('#title-post').val(),
+                         text: $('#text-post').val()} ; 
+       
+          
+       
+        // Send data
+        $.ajax({
+                data: JSON.stringify(post_data), 
+                type:'POST',        
+                url:'/new_post',
+                contentType:'application/json;charset=UTF-8',
+               /* success: function(data){
+                    $(response) = data;
+                    console.log(response.status)*/
+            }).done(function(data){
+                console.log(data.status);
+                console.log(data.post_id);
+                $('#post-list').prepend(`<div id=post-slot-${data.post_id} class="card my_card">
+                                            <div class="card-body">
+                                                <h3 class="card-title">${post_data.author}</h3>
+                                                <h4 class="card-title">${post_data.title}</h4>
+                                                <p class="card-text">${post_data.text}</p>
+                                            <div>
+                                                <label id="label-${data.post_id}" for="like-${data.post_id}""> ${data.likes}</label>
+                                                <button id="like-${data.post_id}" class="btn btn-primary my_btn float-right like-button">Like</button>
+                                            </div>
+                                            </div>
+                                         </div>`);                                                 
+            }).done(function(){
+              $('.like-button').click(Like_click);})
+        // Clean fields
+        $('#author-post').val('');
+        $('#title-post').val('');
+        $('#text-post').val(''); 
+          
+       
+    }                
+    else {
+        $('#error-alert').text('Missing data').show();
+        $('#error-alert').delay(3000).hide(0);
+    }
+}                               
+</script>
+{% endblock body %}
