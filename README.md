@@ -1,0 +1,2 @@
+# seigware
+blog_app
