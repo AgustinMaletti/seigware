@@ -41,7 +41,7 @@ class Selenium_bot():
     def how_much_elements(self, element):
         return len(self.driver.find_elements_by_xpath(element))
     
-    def check_click_check(self, label:str, button:str, i:int):
+    def check_click_check(self, label, button, i):
         # check the valua of the label
         check = self.driver.find_elements_by_xpath(label)[i].text
         # check if the button is there

@@ -65,7 +65,7 @@ class BaseTest(LiveServerTestCase):
 
 
 class Test_with_Selenium(BaseTest):
-  
+   
     def setUp(self):
         self.app = self.create_app()
         db.create_all()
