@@ -2,9 +2,8 @@ from app import create_app, db
 import unittest
 from time import sleep
 from bot import Selenium_bot
-import HtmlTestRunner
-import threading
-import pytest
+# import HtmlTestRunner
+# import threading
 from flask import url_for
 import requests
 # from app import create_app
@@ -12,21 +11,12 @@ from bot import Selenium_bot
 from flask_testing import LiveServerTestCase
 import pathlib
 from flask import Flask
-import requests
 import io
 from models import Post
 import sys
 import json
 from flask import jsonify
 
-def print_in_test(hello):
-    ''' Capture print statement in test
-    '''
-    captured_output = io.StringIO()          # Create StringIO object
-    sys.stdout = captured_output                   #  and redirect stdout.
-    print(hello)                                   # Call unchanged function.
-    sys.stdout = sys.__stdout__                   # Reset redirect.
-    print('Captured', captured_output.getvalue())
 
 authors = ['Roberto', 'Mike', 'Chevy', 'Ivan', 'Cristian', 'Flavia', 'Soraia']
 title = ['Life is good', 'Play with the cats', 'Jump the wall', 'Claim the reward', 'Own your destiny', 'Make good friends', 'Eat icecream']
@@ -38,18 +28,32 @@ text = ['Never give up in the life, learn to smile to difficult situations and e
         'Make some time for rest and have fun with friends at the ends only we have our memories',
         'Experiment with different ice creams until you found one that you like']
 
+PATH = pathlib.Path(__file__).parent
+DB_PATH = PATH.joinpath('static/fake_db.db').resolve().__str__()
+db_uri =  'sqlite:////' + DB_PATH
+
+def print_in_test(hello):
+    ''' Capture print statement in test
+    '''
+    captured_output = io.StringIO()          # Create StringIO object
+    sys.stdout = captured_output                   #  and redirect stdout.
+    print(hello)                                   # Call unchanged function.
+    sys.stdout = sys.__stdout__                   # Reset redirect.
+    print('Captured', captured_output.getvalue())
+
 
 class BaseTest(LiveServerTestCase):
 
     def create_app(self):
         # PATH = pathlib.Path(__file__).parent
          # fake_db_path = PATH.joinpath('/static/fake_db.db').resolve()
-        fake_db_path = 'sqlite:////home/baltasar/Desktop/Tri/Projects/ScrapyBoy/seigware/flask_backend/static/fake_db.db'
+        fake_db_path = db_uri
         app = create_app()
         app.config['TESTING'] = True
         app.config['DEBUG'] = True
+        # SERVER_NAME="0.0.0.0"
         app.config.update(
-                          LIVESERVER_PORT = 7000,
+                          LIVESERVER_PORT = 5000,
                           LIVESERVER_TIMEOUT = 10,
                           SQLALCHEMY_DATABASE_URI = fake_db_path
                           )
@@ -74,6 +78,7 @@ class Test_with_Selenium(BaseTest):
         sleep(4)
         self.bot.driver.implicitly_wait(5)  
         self.server = self.get_server_url() 
+        # self.server='http://0.0.0.0:5000'
         self.bot.driver.get(self.server)
         
         

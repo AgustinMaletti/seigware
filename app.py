@@ -2,9 +2,12 @@ import flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import sys
+import pathlib
 
 db = SQLAlchemy()
-db_uri =  'sqlite:////home/baltasar/Desktop/Tri/Projects/ScrapyBoy/seigware/flask_backend/static/db.db'
+PATH = pathlib.Path(__file__).parent
+DB_PATH = PATH.joinpath('static/db.db').resolve().__str__()
+db_uri =  'sqlite:////' + DB_PATH
 
 def create_app():
     app = flask.Flask(__name__,)
@@ -31,4 +34,4 @@ if __name__ == '__main__':
         port = sys.argv[1]
         app.run(port=port, debug=True)
     else:
-        app.run(port=5000, debug=True)
+        app.run(port=5000, debug=True, host="0.0.0.0")

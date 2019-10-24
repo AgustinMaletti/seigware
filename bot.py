@@ -15,7 +15,12 @@ from selenium.common.exceptions import MoveTargetOutOfBoundsException
 # print(pathlib.Path(__file__).parent)
 # print(__file__)
 
+PATH = pathlib.Path(__file__).parent
+path_to_driver = PATH.joinpath('static/geckodriver').resolve().__str__()
+ 
+
 class Selenium_bot():
+    
     def __init__(self, javascript=True):
         profile = webdriver.FirefoxProfile()
         profile.set_preference('network.proxy.type', 0)
@@ -24,14 +29,15 @@ class Selenium_bot():
         profile.DEFAULT_PREFERENCES['frozen']['javascript.enabled'] = javascript
         opts = Options()
         opts.profile = profile
-        caps = DesiredCapabilities.FIREFOX
-        caps['marionette'] = True
+        # caps = DesiredCapabilities.FIREFOX
+        # caps['marionette'] = True
         # caps['firefox_profile'] = profile.encoded
-        path_to_driver = 'static/geckodriver'
+        # path_to_driver = 'static/geckodriver'
         bin = FirefoxBinary(path_to_driver)
         self.driver = webdriver.Firefox(executable_path=path_to_driver,
                                         options=opts,
-                                        capabilities=caps, )
+                                         )
+                                            # capabilities=caps,
         self.action = ActionChains(self.driver)
     
    
